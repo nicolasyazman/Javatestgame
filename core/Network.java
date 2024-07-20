@@ -5,6 +5,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayDeque;
+import java.util.HashMap;
 
 public class Network {
 
@@ -16,10 +17,19 @@ public class Network {
 	private ArrayDeque<Player> playersInLobby;
 	private ArrayDeque<Player> playersInGame;
 	
+	/**
+	 * Maps the lobbies to the host's IP Address. Forces to have only one lobby per player.
+	 */
+	private HashMap<String, Lobby> lobbyMap;
+	
+	
 	public Network() {
 		playersInGame = new ArrayDeque();
 		playersInLobby = new ArrayDeque();
+		lobbyMap = new HashMap<String, Lobby>();
 	}
+	
+	
 	
 	/**
 	 * Adding a new player to the lobby. Cannot be a player already in game, or already in the lobby.
@@ -49,6 +59,41 @@ public class Network {
 		return null;
 
 	}
+	
+	/**
+	 * This function creates a new lobby with our own IP address.
+	 * @return The created lobby or the existing lobby associated with our own IP address.
+	 */
+	public Lobby createNewLobbyOrReturnsExistingLobby() {
+		String myIp = Network.getIpAddress();
+		
+		if (this.lobbyMap.containsKey(myIp)) {
+			return this.lobbyMap.get(myIp); 
+		}
+		
+		Lobby lobby = new Lobby(new Player(myIp, this));
+		this.lobbyMap.put(myIp, lobby);
+		return lobby;
+	}
+	
+	/**
+	 * Call this function to join a lobby.
+	 * @param hostIpAddress The IP address of the player hosting the game.
+	 */
+	public boolean joinLobby(String hostIpAddress) {
+		if (hostIpAddress == null) {
+			return false;
+		}
+		
+		Lobby hostLobby = this.lobbyMap.get(hostIpAddress);
+		if (hostLobby == null) {
+			return false;
+		}
+		
+		hostLobby.getPlayersInLobby().add(new Player(getIpAddress(), this));
+		return true;
+	}
+	
 	public void communicatePlayersPositions() {
 		
 	}

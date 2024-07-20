@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
+import core.Lobby;
 import core.Network;
 import core.Player;
 
@@ -67,21 +68,49 @@ public class NetworkTest extends TestCase{
 		
 	}
 	
-	public void testHostGame() {
+	public void testCreateLobby() {
 		// Arrange
+		Network network = new Network();
 		
 		// Act
+		Lobby lobby = network.createNewLobbyOrReturnsExistingLobby();
 		
 		// Assert
+		assertNotEquals(null,lobby.getHost().getIPAddress()); 
+		assertNotEquals("127.0.0.1",lobby.getHost().getIPAddress());
+		
 	}
 	
-	public void testJoinGame() {
+	public void testJoinLobby() {
 		// Arrange
+		Network network = new Network();
+		String myIp;
 		
 		// Act
+		Lobby lobby = network.createNewLobbyOrReturnsExistingLobby();
+		myIp = Network.getIpAddress();
+		network.joinLobby(myIp);
+		int numberOfPlayersInLobby = lobby.getPlayersInLobby().size();
 		
 		// Assert
+		assertEquals(1, numberOfPlayersInLobby);
+		
 	}
+	
+	public void testCreateNewLobbyReturnsLobbyWhenUsedTwice() {
+		// Arrange
+		Lobby lobby1, lobby2;
+		Network network = new Network();
+		
+		// Act
+		lobby1 = network.createNewLobbyOrReturnsExistingLobby();
+		lobby2 = network.createNewLobbyOrReturnsExistingLobby();
+		
+		// Assert
+		assertEquals(lobby1, lobby2);
+	}
+	
+
 	
 	
 }
